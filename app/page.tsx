@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ImageUpload from "./components/ImageUpload";
+import CodeDisplay from "./components/CodeDisplay";
 
 export default function Home() {
   const [image, setImage] = useState<string | null>(null);
@@ -23,7 +24,6 @@ export default function Home() {
       });
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error);
       setCode(data.code);
     } catch (err: any) {
@@ -34,13 +34,18 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-8">
+    <main className="min-h-screen bg-gray-950 text-white flex flex-col items-center py-16 px-8">
       <h1 className="text-3xl font-bold mb-2">Figma to Code</h1>
       <p className="text-gray-400 mb-8">
         Upload a screenshot and get clean React + Tailwind code
       </p>
 
-      <ImageUpload onImageSelect={(base64) => setImage(base64)} />
+      <ImageUpload
+        onImageSelect={(base64) => {
+          setImage(base64);
+          setCode(null);
+        }}
+      />
 
       {image && (
         <button
@@ -54,13 +59,7 @@ export default function Home() {
 
       {error && <p className="mt-4 text-red-400 text-sm">{error}</p>}
 
-      {code && (
-        <div className="mt-8 w-full max-w-2xl">
-          <pre className="bg-gray-900 rounded-xl p-6 overflow-x-auto text-sm text-gray-300">
-            {code}
-          </pre>
-        </div>
-      )}
+      {code && <CodeDisplay code={code} />}
     </main>
   );
 }

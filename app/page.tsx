@@ -3,12 +3,14 @@
 import { useState } from "react";
 import ImageUpload from "./components/ImageUpload";
 import CodeDisplay from "./components/CodeDisplay";
+import PreviewFrame from "./components/PreviewFrame";
 
 export default function Home() {
   const [image, setImage] = useState<string | null>(null);
   const [code, setCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<"code" | "preview">("code");
 
   const handleGenerate = async () => {
     if (!image) return;
@@ -26,6 +28,7 @@ export default function Home() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setCode(data.code);
+      setTab("code");
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {
@@ -59,7 +62,41 @@ export default function Home() {
 
       {error && <p className="mt-4 text-red-400 text-sm">{error}</p>}
 
-      {code && <CodeDisplay code={code} />}
+      {code && (
+        <div className="w-full max-w-4xl mt-8">
+          {/* Tabs */}
+          <div className="flex gap-1 mb-4 bg-gray-900 p-1 rounded-lg w-fit">
+            <button
+              onClick={() => setTab("code")}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                tab === "code"
+                  ? "bg-violet-600 text-white"
+                  : "text-gray-400 hover:text-white"
+              }`}
+            >
+              Code
+            </button>
+            <button
+              onClick={() => setTab("preview")}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                tab === "preview"
+                  ? "bg-violet-600 text-white"
+                  : "text-gray-400 hover:text-white"
+              }`}
+            >
+              Preview
+            </button>
+          </div>
+
+          {/* Content */}
+          {tab === "code" && <CodeDisplay code={code} />}
+          {tab === "preview" && (
+            <div className="w-full h-[600px] rounded-xl overflow-hidden border border-gray-800 bg-white">
+              <PreviewFrame code={code} />
+            </div>
+          )}
+        </div>
+      )}
     </main>
   );
 }
